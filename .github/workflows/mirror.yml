@@ -48,6 +48,14 @@ jobs:
         shell: bash
         run: node port/sync.mjs --ref "${{ inputs.ref || 'main' }}" | tee sync.log
 
+      # Staged before verify, not after, so verify's executable-bit check reads
+      # the modes this run actually produced. sync.mjs chmods on Linux, `git add`
+      # records 100755, and a script upstream newly marks executable is checked
+      # here rather than one run later.
+      - name: Stage the regenerated port
+        shell: bash
+        run: git add -A pstack UPSTREAM.json
+
       - name: Verify the port
         id: verify
         shell: bash
