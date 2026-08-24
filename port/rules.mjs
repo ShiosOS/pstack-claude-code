@@ -85,8 +85,7 @@ export const rewrites = [
 	// "Task schema" in the orchestrate playbook is deliberately left alone: it
 	// describes Cursor's cloud Task schema (`environment: "cloud"`), which the
 	// Agent tool has no counterpart for. See PORT.md, known gaps.
-	{ name: 'task-tool-prose', find: /\bthe Task tool\b/g, replace: 'the Agent tool' },
-	{ name: 'task-tool-bare', find: /\bTask (tool|subagent)\b/g, replace: 'Agent $1' },
+
 	// Cursor's todo tool is "todolist"; Claude Code's is `TodoWrite`. Naming the
 	// tool at the point the list gets created keeps the instruction actionable —
 	// a bare "todo list" everywhere would drop the tool reference altogether. The
@@ -167,9 +166,19 @@ export const structural = [
 			const m = relPath.match(/^skills\/(.+)\/SKILL\.md$/);
 			if (!m) return text;
 			const slug = m[1].split('/').pop();
-			return text.replace(
-				/^(---\r?\n(?:[\s\S]*?\r?\n)??)name:[ \t]*(.*)$/m,
-				(full, head, current) => (current.trim() === slug ? full : `${head}name: ${slug}`),
+			// Anchored at index 0, not /m: a skill whose frontmatter happens to omit
+			// `name:` would otherwise let `^---` match a horizontal rule further down
+			// the document and rewrite body prose as if it were frontmatter.
+			const fm = text.match(/^---\r?\n([\s\S]*?\r?\n)---/);
+			if (!fm) return text;
+			const line = fm[1].match(/^name:[ \t]*(.*)$/m);
+			if (!line || line[1].trim() === slug) return text;
+			const head = fm[1].slice(0, line.index);
+			const tail = fm[1].slice(line.index + line[0].length);
+			return (
+				text.slice(0, fm.index) +
+				`---\n${head}name: ${slug}${tail}---` +
+				text.slice(fm.index + fm[0].length)
 			);
 		},
 	},
