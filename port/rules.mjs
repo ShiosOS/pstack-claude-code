@@ -76,7 +76,15 @@ export const rewrites = [
 
 	// --------------------------------------------------------------- tool names
 	{ name: 'ask-question-tool', find: /\bAskQuestion\b/g, replace: 'AskUserQuestion' },
-	{ name: 'task-tool-backtick', find: /`Task`(\s+(?:tool|subagent))/g, replace: '`Agent`$1' },
+	// A backticked `Task` is always the tool, whatever follows it. Upstream also
+	// writes it bare ("Spawn `Task` with subagent_type"), which a rule keyed on a
+	// following "tool"/"subagent" misses entirely.
+	{ name: 'task-tool-backtick', find: /`Task`/g, replace: '`Agent`' },
+	{ name: 'task-tool-prose', find: /\bthe Task tool\b/g, replace: 'the Agent tool' },
+	{ name: 'task-tool-bare', find: /\bTask (tool|subagent)\b/g, replace: 'Agent $1' },
+	// "Task schema" in the orchestrate playbook is deliberately left alone: it
+	// describes Cursor's cloud Task schema (`environment: "cloud"`), which the
+	// Agent tool has no counterpart for. See PORT.md, known gaps.
 	{ name: 'task-tool-prose', find: /\bthe Task tool\b/g, replace: 'the Agent tool' },
 	{ name: 'task-tool-bare', find: /\bTask (tool|subagent)\b/g, replace: 'Agent $1' },
 	{ name: 'todolist-tool', find: /`TodoWrite`|\btodolist\b/g, replace: 'todo list' },

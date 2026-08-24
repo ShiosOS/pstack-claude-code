@@ -13,7 +13,7 @@
 		"skills": 44,
 		"agents": 2,
 		"files": 155,
-		"filesTransformed": 43,
+		"filesTransformed": 45,
 		"executable": [
 			"skills/poteto-mode/scripts/orch/orch.ts",
 			"skills/poteto-mode/scripts/watch-pr/watch-pr",
@@ -43,7 +43,7 @@
 			"skills-dir": 9,
 			"strip-cursor-always-apply": 1,
 			"strip-mdc-rule-frontmatter-in-fences": 1,
-			"task-tool-backtick": 1,
+			"task-tool-backtick": 8,
 			"task-tool-bare": 1,
 			"task-tool-prose": 2,
 			"todolist-tool": 7,

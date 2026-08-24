@@ -65,6 +65,9 @@ const FORBIDDEN = [
 	{ name: 'cursor-mdc-file', pattern: /\.mdc\b/, hint: 'Cursor rule extension; Claude Code uses .md' },
 	{ name: 'ask-question-tool', pattern: /\bAskQuestion\b/, hint: 'Claude Code tool is AskUserQuestion' },
 	{ name: 'task-tool', pattern: /\bTask (?:tool|subagent)\b/, hint: 'Claude Code tool is Agent' },
+	// Upstream also writes it bare — "Spawn `Task` with subagent_type" — which a
+	// pattern keyed on a following "tool"/"subagent" never sees.
+	{ name: 'task-tool-backtick', pattern: /`Task`/, hint: 'Claude Code tool is `Agent`' },
 ];
 
 function walk(dir, base = '') {
