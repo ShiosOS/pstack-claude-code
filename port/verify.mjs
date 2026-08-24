@@ -18,23 +18,43 @@ const OUT = path.join(ROOT, 'pstack');
 const errors = [];
 const warnings = [];
 
-// Occurrences that are correct as-is. Each entry needs a reason, because an
-// allowlist without reasons becomes a place to hide real failures.
+// Occurrences that are correct as-is. Each entry carries a reason, because an
+// allowlist without reasons becomes a place to hide real failures. `path` scopes
+// an entry to files where the exemption actually applies.
 const ALLOW = [
 	{
 		pattern: /cursor\/plugins/,
 		why: 'upstream repo URL — correct to reference in provenance and attribution',
 	},
 	{
-		pattern: /cursor\.com\/(?:agents|docs|dashboard)/,
-		why: 'orchestrate playbook documents Cursor cloud, which has no Claude Code equivalent',
+		pattern: /cursor\.com\/(?:agents|docs|dashboard)|Cursor dashboard/,
+		why: 'Cursor cloud, documented in the orchestrate playbook; no Claude Code equivalent',
 	},
-	{ pattern: /CURSOR_API_KEY/, why: 'same — Cursor cloud credential, documented not used' },
+	{ pattern: /CURSOR_API_KEY/, why: 'Cursor cloud credential, documented not used' },
 	{ pattern: /`?Agent\.create`?/, why: 'Cursor cloud SDK call named in the orchestrate playbook' },
 	{ pattern: /cursor-team-kit/, why: 'sibling Cursor plugin referenced by name only' },
+	{
+		pattern: /Application Support\/Cursor/,
+		why: 'host editor cache path in a disk-reclaim checklist',
+	},
+	{
+		path: /^automations\//,
+		pattern: /Cursor/,
+		why: 'the benny pack targets Cursor Automations and Cursor Slack actions; dormant here (see PORT.md)',
+	},
+	{
+		path: /^README\.md$/,
+		pattern: /[Cc]ursor/,
+		why: "upstream author's bio and marketing copy; attribution, not instruction",
+	},
+	{
+		pattern: /are Cursor model slugs/,
+		why: 'port overlay naming the upstream defaults in order to say they are invalid here',
+	},
 ];
 
-const allowed = (line) => ALLOW.some((a) => a.pattern.test(line));
+const allowed = (relPath, line) =>
+	ALLOW.some((a) => (!a.path || a.path.test(relPath)) && a.pattern.test(line));
 
 // Tokens that must not survive the port.
 const FORBIDDEN = [
@@ -74,7 +94,7 @@ for (const f of textFiles) {
 	lines.forEach((line, i) => {
 		for (const rule of FORBIDDEN) {
 			if (!rule.pattern.test(line)) continue;
-			if (allowed(line)) continue;
+			if (allowed(f.rel, line)) continue;
 			errors.push(`${f.rel}:${i + 1}  [${rule.name}] ${rule.hint}\n      ${line.trim()}`);
 		}
 	});
@@ -87,7 +107,7 @@ for (const f of textFiles) {
 	const lines = fs.readFileSync(f.full, 'utf8').split('\n');
 	lines.forEach((line, i) => {
 		if (!/\bCursor(?:'s)?\b/.test(line)) return;
-		if (allowed(line)) return;
+		if (allowed(f.rel, line)) return;
 		warnings.push(`${f.rel}:${i + 1}  mentions Cursor — confirm it should\n      ${line.trim()}`);
 	});
 }
