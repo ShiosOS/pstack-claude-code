@@ -1,6 +1,7 @@
 # Overlays
 
-Local content additions, applied after the mechanical rewrites in `../rules.mjs`.
+Local content additions. `../sync.mjs` applies these after the mechanical
+rewrites in `../rules.mjs`.
 
 The distinction matters:
 
@@ -9,10 +10,10 @@ The distinction matters:
 - **Overlays** are *opinion*. Extra prose we want on top of upstream. Dropping
   one leaves a plugin that still works, just without our addition.
 
-Every overlay appends a clearly-marked section to the end of its target. It never
-edits inline and never renumbers an upstream list, because an anchored edit is
-exactly the thing that breaks when upstream rewords a paragraph. Appending costs
-a little redundancy and buys immunity to upstream drift.
+Every overlay appends a marked section to the end of its target. It never edits
+inline and never renumbers an upstream list, because an anchored edit is exactly
+what breaks when upstream rewords a paragraph. Appending repeats a little text
+and survives any rewording.
 
 Frontmatter:
 
@@ -21,5 +22,6 @@ Frontmatter:
 | `target` | path(s) inside the plugin, comma-separated. Must already exist. |
 | `enabled`| `false` to keep the file but skip applying it.                  |
 
-A `target` that does not exist is a hard error, not a silent skip: it means
-upstream moved or deleted the file and the overlay needs a human decision.
+A `target` that does not exist is a hard error rather than a silent skip. It
+means upstream moved or deleted the file, and someone has to decide whether to
+retarget the overlay or drop it.
