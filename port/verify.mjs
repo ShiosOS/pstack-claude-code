@@ -9,6 +9,7 @@
 // a Cursor-ism no rule covers, this fails and CI refuses to publish, instead of
 // shipping instructions that point at paths which do not exist here.
 
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -208,6 +209,75 @@ for (const f of textFiles.filter((f) => f.rel.endsWith('.md'))) {
 		const target = path.resolve(dir, m[1]);
 		if (!fs.existsSync(target)) {
 			errors.push(`${f.rel}  broken relative link: ${m[1]}`);
+		}
+	}
+}
+
+// ------------------------------------------------------------ git-level checks
+//
+// Both of these are invisible in the working tree and only bite the person who
+// installs the plugin: a script that lost its executable bit does not run, and a
+// gitignored file is present here and absent everywhere else.
+//
+// Neither may fail on a legitimate upstream addition. A brand-new file is not in
+// the index yet when this runs — CI verifies before it commits — so "not in the
+// index" is never treated as an error on its own.
+
+const inGitRepo = fs.existsSync(path.join(ROOT, '.git'));
+
+if (inGitRepo) {
+	// --- gitignored generated files. Asked directly, so a new upstream filename
+	// that happens to be tracked-but-new does not read as a failure.
+	const relPaths = files.map((f) => 'pstack/' + f.rel);
+	try {
+		const out = execFileSync('git', ['-C', ROOT, 'check-ignore', '--stdin'], {
+			input: relPaths.join('\n'),
+			encoding: 'utf8',
+		});
+		for (const line of out.split('\n').filter(Boolean)) {
+			errors.push(`${line} is generated but gitignored — it would be missing for installers`);
+		}
+	} catch (e) {
+		// check-ignore exits 1 when nothing matches, which is the good case.
+		if (e.status !== 1) warnings.push(`git check-ignore failed: ${e.message}`);
+	}
+
+	// --- executable bits. chmod is a no-op on Windows, so the authority is the
+	// mode git recorded, and UPSTREAM.json is what says which files need it.
+	const modes = new Map();
+	try {
+		const out = execFileSync('git', ['-C', ROOT, 'ls-files', '-s', '--', 'pstack'], {
+			encoding: 'utf8',
+		});
+		for (const line of out.split('\n')) {
+			const m = line.match(/^(\d{6}) \S+ \d+\t(.+)$/);
+			if (m) modes.set(m[2].slice('pstack/'.length), m[1]);
+		}
+	} catch (e) {
+		warnings.push(`could not read git modes: ${e.message}`);
+	}
+
+	let provenance;
+	try {
+		provenance = JSON.parse(fs.readFileSync(path.join(ROOT, 'UPSTREAM.json'), 'utf8'));
+	} catch {
+		errors.push('UPSTREAM.json is missing or unparseable — cannot check executable bits');
+	}
+
+	for (const rel of provenance?.port?.executable ?? []) {
+		const mode = modes.get(rel);
+		if (mode === undefined) {
+			// Not staged yet. On Linux sync.mjs already chmodded it and `git add`
+			// will record 100755; on Windows it will not, hence the warning.
+			warnings.push(
+				`pstack/${rel} is executable upstream but not yet in the index — ` +
+					'stage it and re-run to confirm the mode',
+			);
+		} else if (mode !== '100755') {
+			errors.push(
+				`pstack/${rel} is mode ${mode}, expected 100755 — upstream ships it executable\n` +
+					`      fix: git update-index --chmod=+x pstack/${rel}`,
+			);
 		}
 	}
 }

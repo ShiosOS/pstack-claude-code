@@ -58,12 +58,31 @@ const git = (args, cwd) =>
 
 // ---------------------------------------------------------------- fetch upstream
 
+// Which upstream files are executable, read from the git index rather than from
+// disk. A Windows checkout sets core.fileMode=false and writes every file 0644,
+// so stat() would report upstream's scripts as non-executable and the port would
+// ship them unrunnable. `git ls-files -s` reports the recorded mode, which is
+// the same answer on every platform.
+function executablesOf(repoRoot) {
+	const out = new Set();
+	for (const line of git(['ls-files', '-s', '--', SUBDIR], repoRoot).split('\n')) {
+		const m = line.match(/^(\d{6}) \S+ \d+\t(.+)$/);
+		if (m && m[1] === '100755') out.add(m[2].slice(SUBDIR.length + 1));
+	}
+	return out;
+}
+
 function fetchUpstream() {
 	if (localClone) {
 		const src = path.resolve(localClone);
 		const sub = path.join(src, SUBDIR);
 		if (!fs.existsSync(sub)) throw new Error(`--from ${src} has no ${SUBDIR}/ directory`);
-		return { dir: sub, sha: git(['rev-parse', 'HEAD'], src), cleanup: () => {} };
+		return {
+			dir: sub,
+			sha: git(['rev-parse', 'HEAD'], src),
+			executables: executablesOf(src),
+			cleanup: () => {},
+		};
 	}
 	const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pstack-sync-'));
 	console.log(`fetching ${UPSTREAM} @ ${ref}`);
@@ -76,6 +95,7 @@ function fetchUpstream() {
 	return {
 		dir: path.join(tmp, SUBDIR),
 		sha: git(['rev-parse', 'FETCH_HEAD'], tmp),
+		executables: executablesOf(tmp),
 		cleanup: () => fs.rmSync(tmp, { recursive: true, force: true }),
 	};
 }
@@ -83,6 +103,9 @@ function fetchUpstream() {
 // ------------------------------------------------------------------- transform
 
 const ruleHits = new Map();
+
+// Relative paths upstream records as mode 100755. Set in main, before copyTree.
+let executables = new Set();
 
 function noteHit(name, relPath) {
 	const entry = ruleHits.get(name) ?? new Set();
@@ -129,6 +152,10 @@ function copyTree(srcDir, destDir, relBase = '') {
 		} else {
 			fs.copyFileSync(src, dest);
 		}
+		// Upstream ships runnable scripts. chmod is a no-op on Windows, so the
+		// mode is also recorded in UPSTREAM.json and asserted by verify.mjs
+		// against the git index, which is where it actually has to be right.
+		if (executables.has(rel)) fs.chmodSync(dest, 0o755);
 	}
 	return stats;
 }
@@ -217,6 +244,7 @@ try {
 	fs.rmSync(OUT, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 	fs.mkdirSync(OUT, { recursive: true });
 
+	executables = upstream.executables;
 	const stats = copyTree(upstream.dir, OUT);
 	const manifest = writeManifest(upstream.dir);
 	const overlaysApplied = applyOverlays();
@@ -236,6 +264,7 @@ try {
 			agents,
 			files: stats.files,
 			filesTransformed: stats.transformed,
+			executable: [...executables].sort(),
 			rulesApplied: Object.fromEntries(
 				[...ruleHits.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, v.size]),
 			),

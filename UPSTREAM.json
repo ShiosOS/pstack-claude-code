@@ -14,6 +14,12 @@
 		"agents": 2,
 		"files": 155,
 		"filesTransformed": 43,
+		"executable": [
+			"skills/poteto-mode/scripts/orch/orch.ts",
+			"skills/poteto-mode/scripts/watch-pr/watch-pr",
+			"skills/poteto-mode/scripts/worktree-audit.sh",
+			"skills/show-me-your-work/scripts/log.sh"
+		],
 		"rulesApplied": {
 			"article-before-agent": 1,
 			"ask-question-tool": 6,
