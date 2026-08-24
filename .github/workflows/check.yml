@@ -1,0 +1,74 @@
+name: check the port
+
+# Runs on pull requests, where mirror.yml deliberately does not. That workflow
+# commits, pushes, and opens issues, all of which need a write token, and a pull
+# request from a fork gets a read-only one. This workflow only reads.
+#
+# It answers two questions a reviewer cannot answer by eye: does verify still
+# pass, and is the committed pstack/ actually what port/rules.mjs produces.
+
+on:
+  pull_request:
+    paths:
+      - 'port/**'
+      - 'pstack/**'
+      - 'UPSTREAM.json'
+      - '.claude-plugin/**'
+      - '.github/workflows/check.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Re-port at the upstream commit this branch recorded, not at main. A rule
+      # change has to be judged against the same input the committed tree came
+      # from. Porting from main instead would show every upstream commit made
+      # since the branch started as though the pull request had caused it.
+      - name: Re-port at the recorded upstream commit
+        shell: bash
+        run: |
+          cp UPSTREAM.json "$RUNNER_TEMP/committed.json"
+          node port/sync.mjs --ref "$(jq -r '.upstream.commit' "$RUNNER_TEMP/committed.json")"
+
+      # Before verify, not after: two of verify's checks read the git index.
+      - name: Stage the regenerated port
+        shell: bash
+        run: git add -A pstack UPSTREAM.json
+
+      - name: Verify the port
+        shell: bash
+        run: node port/verify.mjs
+
+      - name: Confirm the committed tree matches the rules
+        shell: bash
+        run: |
+          fail=0
+          if [ -n "$(git status --porcelain -- pstack)" ]; then
+            echo '::error::pstack/ is not what port/rules.mjs generates. Run `node port/sync.mjs`, then commit the regenerated tree with your rule.'
+            git status --porcelain -- pstack
+            fail=1
+          fi
+          # Compare provenance with .upstream.ref removed. Pinning the re-port to
+          # a commit rewrites that one field from "main" to the sha, which is an
+          # artifact of how this job runs and not a real difference.
+          if ! diff -u \
+            <(jq -S 'del(.upstream.ref)' "$RUNNER_TEMP/committed.json") \
+            <(jq -S 'del(.upstream.ref)' UPSTREAM.json); then
+            echo '::error::UPSTREAM.json does not match the regenerated port. Commit the UPSTREAM.json that `node port/sync.mjs` wrote.'
+            fail=1
+          fi
+          [ "$fail" -eq 0 ] && echo 'committed tree matches the rules'
+          exit "$fail"
