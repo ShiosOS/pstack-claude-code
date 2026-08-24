@@ -16,8 +16,10 @@ output, change a rule in [`port/rules.mjs`](port/rules.mjs) or an overlay in
 `~/.claude/skills/`. Skipping one leaves an instruction pointing at a path that
 does not exist, which an agent will follow anyway.
 
-**Overlays** are opinion — additions we want on top of upstream. Skipping one
-leaves a working plugin, just without our addition.
+**Overlays** are opinion — additions on top of upstream. Skipping one leaves a
+working plugin, just without the addition. Because this is meant to read as
+upstream wrote it, they ship off unless the content is really port correctness
+wearing an overlay's clothes; see [Overlays](#overlays).
 
 Both are content-addressed. A rewrite matches a token or a shape, never a line
 number or a hunk of context, so upstream can reword the paragraph around it and
@@ -36,7 +38,8 @@ numbering.
 | `~/.cursor/skills/`, `~/.cursor/plugins/`            | `~/.claude/skills/`, `~/.claude/plugins/`             |
 | `~/.cursor/projects/<slug>/agent-transcripts/…`      | `~/.claude/projects/<slug>/<uuid>.jsonl` (flat)       |
 | `AskQuestion`                                        | `AskUserQuestion`                                    |
-| `Task` tool / subagent                               | `Agent` tool / subagent                              |
+| `Task` tool / subagent, and bare `` `Task` ``        | `Agent`                                              |
+| `todolist`                                           | todo list, naming `TodoWrite` where one is opened    |
 | `alwaysApply:` frontmatter                           | dropped — no Claude Code equivalent                  |
 | `/add-plugin pstack`                                 | `/plugin marketplace add …` + `/plugin install …`     |
 | "Cursor's built-in X"                                | "your host's built-in X"                             |
@@ -81,15 +84,30 @@ because a documented dead end is easier to reason about than a missing file.
   `setup-pstack-claude-models` overlay documents the valid values inside the
   skill itself.
 
-## Overlays currently applied
+## Overlays
 
-| Overlay                     | Target(s)                                                        | Why                                                                                     |
-| --------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `setup-pstack-claude-models`| `skills/setup-pstack`                                            | Names the valid Claude Code model values; upstream's defaults are all invalid here.      |
-| `user-level-skill-authoring`| `skills/automate-me`, `create-verification-skill`, `maintain-…`   | Generated skills go to `~/.claude/skills/`, not into a project's repo diff.              |
-| `unslop-extra-patterns`     | `skills/unslop`                                                  | Adds "load-bearing", "seam", and "lands" to the pattern list.                            |
+| Overlay                      | Status   | Target(s)                                                      |
+| ---------------------------- | -------- | -------------------------------------------------------------- |
+| `setup-pstack-claude-models` | on       | `skills/setup-pstack`                                          |
+| `user-level-skill-authoring` | off      | `skills/automate-me`, `create-verification-skill`, `maintain-…` |
+| `unslop-extra-patterns`      | off      | `skills/unslop`                                                |
 
-Disable one by setting `enabled: false` in its frontmatter, then re-syncing.
+Two of the three ship disabled, because a faithful mirror should read as upstream
+wrote it. `unslop-extra-patterns` adds pattern entries upstream does not have.
+`user-level-skill-authoring` redirects generated skills to `~/.claude/skills/`
+instead of the project — a defensible preference, but it contradicts upstream's
+own `docs/guide/06-verify-and-ship.md`, which documents the project path. Shipping
+both would have put the plugin at odds with itself.
+
+`setup-pstack-claude-models` stays on because it is not opinion. Upstream's
+`setup-pstack` instructs the agent to write model slugs that do not exist in
+Claude Code, which is the same class of defect as a `~/.cursor/` path: an
+instruction an agent will follow into a wall. The overlay names the valid values
+without guessing a slug-to-slug mapping, which the rewrite layer still refuses to
+do.
+
+Turn one on with `enabled: true` in its frontmatter, then re-sync. Both remain in
+[`port/overlays/`](port/overlays/) — off, not deleted.
 
 ## The gate
 
@@ -98,6 +116,18 @@ fails the build on any surviving `.cursor/` path, `agent-transcripts` reference,
 Cursor-only frontmatter key, or wrong tool name; on a malformed manifest; on a
 skill whose frontmatter `name` does not match its directory; and on a broken
 relative link.
+
+Two of its checks look at the committed tree rather than the tree on disk,
+because both failure modes are invisible locally:
+
+- **Executable bits.** Upstream ships four runnable scripts. `chmod` is a no-op
+  on Windows, so the mode is recorded in `UPSTREAM.json` and asserted against
+  `git ls-files -s`, with the `git update-index --chmod=+x` fix in the error. A
+  script that arrives mode `100644` is not a cosmetic difference; it does not run
+  for anyone who installs the plugin.
+- **Tracking.** Every generated file must be tracked. A future upstream filename
+  matching a `.gitignore` pattern would be present here and absent for everyone
+  else, and nothing else in the pipeline would notice.
 
 When upstream adds a Cursor-ism no rule covers, verify fails, CI publishes
 nothing, and it opens an issue naming the file and line. A mirror that is a day

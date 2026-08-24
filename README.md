@@ -45,7 +45,8 @@ So the port is not a patch set. It is a **transform** plus a **gate**:
   apply.
 - [`port/verify.mjs`](port/verify.mjs) — refuses to publish a tree that still
   contains a `.cursor/` path, the wrong tool name, a malformed manifest, a skill
-  whose frontmatter name does not match its directory, or a broken link.
+  whose frontmatter name does not match its directory, a broken link, a script
+  that lost its executable bit, or a generated file that is not tracked.
 - [`.github/workflows/mirror.yml`](.github/workflows/mirror.yml) — runs both
   daily, commits when the output changes, and opens an issue when the gate trips.
 
@@ -65,7 +66,7 @@ deviation, and the three things that are ported but cannot work here
 .claude-plugin/marketplace.json   the marketplace entry
 pstack/                           GENERATED — the ported plugin
 port/rules.mjs                    Cursor -> Claude Code rewrites
-port/overlays/                    local content additions (append-only)
+port/overlays/                    optional local additions (mostly off)
 port/sync.mjs                     fetch upstream, re-port, record provenance
 port/verify.mjs                   the gate
 UPSTREAM.json                     which upstream commit this was built from
@@ -79,11 +80,19 @@ the output can never disagree with what the rules say it should be.
 
 ```bash
 node port/sync.mjs                 # re-port from upstream main
+git add -A pstack UPSTREAM.json    # stage first — see below
 node port/verify.mjs               # gate it
 node port/sync.mjs --check         # exit 1 if the port is out of date
 node port/sync.mjs --ref <sha>     # pin a specific upstream commit
 node port/sync.mjs --from ../clone # re-port from a local clone, offline
 ```
+
+Stage before verifying. Two of verify's checks read what git recorded rather than
+what is on disk, because that is where the failure would actually be: a script
+that lost its executable bit, and a generated file a `.gitignore` pattern would
+hide from everyone who installs the plugin. On Windows, `chmod` does not stick, so
+a newly-executable upstream script needs `git update-index --chmod=+x` once —
+verify prints the exact command.
 
 `sync.mjs` prints which rules fired and on how many files, and reports rules that
 matched nothing — usually a sign upstream dropped the text, occasionally a sign a
