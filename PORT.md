@@ -109,7 +109,7 @@ do.
 Turn one on with `enabled: true` in its frontmatter, then re-sync. Both remain in
 [`port/overlays/`](port/overlays/) — off, not deleted.
 
-## The gate
+## What verify refuses
 
 [`port/verify.mjs`](port/verify.mjs) is what makes unattended mirroring safe. It
 fails the build on any surviving `.cursor/` path, `agent-transcripts` reference,

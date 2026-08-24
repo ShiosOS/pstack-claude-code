@@ -2,7 +2,7 @@ name: mirror upstream pstack
 
 # Re-ports pstack from cursor/plugins and commits the result.
 #
-# The gate is port/verify.mjs. When upstream introduces a Cursor-ism no rule
+# port/verify.mjs checks the result. When upstream introduces a Cursor-ism no rule
 # covers, verify fails, nothing is pushed, and an issue is opened naming the
 # file and line. A stale mirror is recoverable; a mirror that silently ships
 # instructions pointing at ~/.cursor paths is not.
@@ -42,7 +42,7 @@ jobs:
 
       # shell: bash is required, not cosmetic. The default shell lacks pipefail,
       # so `node ... | tee` would report tee's exit status and a failing verify
-      # would pass the step, defeating the gate entirely.
+      # would pass the step and a broken port would publish.
       - name: Re-port from upstream
         id: sync
         shell: bash

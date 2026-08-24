@@ -37,7 +37,7 @@ names, Cursor's transcript layout, and Cursor-only built-ins. Hand-patching a
 clone works exactly once. The patches are edits to tracked files, so the next
 `git pull` conflicts, and from there the port drifts.
 
-So the port is not a patch set. It is a transform plus a gate:
+So the port is not a patch set. Three files do all of it:
 
 - [`port/rules.mjs`](port/rules.mjs) holds content-addressed rewrites. Each one
   matches a token or a shape, never a line number. Upstream can reword the
@@ -48,9 +48,9 @@ So the port is not a patch set. It is a transform plus a gate:
   whose frontmatter name does not match its directory, a broken link, a script
   that lost its executable bit, or a generated file that is not tracked.
 - [`.github/workflows/mirror.yml`](.github/workflows/mirror.yml) runs both daily,
-  commits when the output changes, and opens an issue when the gate trips.
+  commits when the output changes, and opens an issue when verify fails.
 
-The gate is what makes an unattended mirror safe to install. Upstream *will*
+Verify is why this mirror is safe to install unattended. Upstream *will*
 eventually introduce a Cursor-ism no rule covers. When that happens the build
 fails and publishes nothing, instead of shipping an instruction that points at a
 path which does not exist. An agent reading that instruction would follow it
@@ -69,7 +69,7 @@ pstack/                           GENERATED, the ported plugin
 port/rules.mjs                    Cursor -> Claude Code rewrites
 port/overlays/                    optional local additions, most disabled
 port/sync.mjs                     fetch upstream, re-port, record provenance
-port/verify.mjs                   the gate
+port/verify.mjs                   refuses to publish a broken port
 UPSTREAM.json                     which upstream commit this was built from
 ```
 
@@ -83,7 +83,7 @@ be.
 ```bash
 node port/sync.mjs                 # re-port from upstream main
 git add -A pstack UPSTREAM.json    # stage first, see below
-node port/verify.mjs               # gate it
+node port/verify.mjs               # check it
 node port/sync.mjs --check         # exit 1 if the port is out of date
 node port/sync.mjs --ref <sha>     # pin a specific upstream commit
 node port/sync.mjs --from ../clone # re-port from a local clone, offline

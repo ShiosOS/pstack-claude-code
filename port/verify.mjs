@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Gate the generated port. Exits non-zero on anything that would ship broken.
+// Check the generated port. Exits non-zero on anything that would ship broken.
 //
 //   node port/verify.mjs
 //
@@ -88,7 +88,7 @@ if (!fs.existsSync(OUT)) {
 
 // Content sniffing, matching sync.mjs. An extension allowlist would skip
 // upstream's extensionless scripts, so a Cursor path added to one would pass
-// the gate unseen.
+// unchecked.
 const BINARY_EXT = new Set([
 	'.jpg', '.jpeg', '.png', '.gif', '.webp', '.ico', '.pdf',
 	'.woff', '.woff2', '.ttf', '.otf', '.zip', '.gz', '.mp4', '.mov',
