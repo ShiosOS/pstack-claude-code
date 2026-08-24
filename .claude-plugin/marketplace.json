@@ -1,0 +1,24 @@
+{
+	"name": "pstack-claude-code",
+	"owner": {
+		"name": "Julius Walton"
+	},
+	"metadata": {
+		"description": "Claude Code port of pstack, mirrored from cursor/plugins.",
+		"version": "1.0.0"
+	},
+	"plugins": [
+		{
+			"name": "pstack",
+			"source": "./pstack",
+			"description": "if you want to go fast, go deep first. pstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence.",
+			"author": {
+				"name": "Lauren Tan"
+			},
+			"homepage": "https://github.com/cursor/plugins/tree/main/pstack",
+			"license": "MIT",
+			"keywords": ["pstack", "workflow", "principles", "review", "planning"],
+			"category": "workflow"
+		}
+	]
+}
