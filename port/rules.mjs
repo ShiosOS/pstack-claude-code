@@ -9,6 +9,9 @@
 // text). A Cursor-ism that NO rule matches is an error, and verify.mjs is what
 // catches it.
 
+// This repo, used to rewrite upstream's install instructions.
+export const PORT_REPO = 'ShiosOS/pstack-claude-code';
+
 /** @type {{name: string, find: RegExp, replace: string | ((...a: string[]) => string)}[]} */
 export const rewrites = [
 	// ---------------------------------------------------------------- transcripts
@@ -77,11 +80,54 @@ export const rewrites = [
 		replace:
 			'Author the skill directly: a directory with a `SKILL.md` whose YAML frontmatter carries a kebab-case `name` and a `description` naming when to reach for it.',
 	},
+	// Claude Code has no `create-skill` or `babysit` built-in, and its wake
+	// mechanism is the `/loop` skill rather than a Cursor command. Attributing
+	// these to "your host" keeps the sentence true on either platform instead of
+	// asserting a built-in that is not there.
+	{ name: 'cursor-builtin-attribution', find: /Cursor's built-in/g, replace: "your host's built-in" },
+	{ name: 'cursor-loop-command', find: /[Cc]ursor's `\/loop` command/g, replace: 'the `/loop` skill' },
+
+	// ------------------------------------------------------------ install prose
+	{ name: 'install-prose', find: /In a Cursor chat, run:/g, replace: 'In Claude Code, run:' },
 	{
-		name: 'cursor-builtin-generic',
-		find: /Cursor's built-in `([a-z-]+)` skill/g,
-		replace: "the `$1` skill",
+		name: 'install-command',
+		find: /\/add-plugin pstack/g,
+		replace: `/plugin marketplace add ${PORT_REPO}\n/plugin install pstack@pstack-claude-code`,
 	},
+	{
+		name: 'install-confirm',
+		find: /Cursor confirms the plugin is installed\./g,
+		replace: 'Claude Code confirms the plugin is installed.',
+	},
+
+	// ------------------------------------------------------------- host naming
+	{ name: 'cursor-restart-noun', find: /\ba Cursor restart\b/g, replace: 'a Claude Code restart' },
+	{ name: 'cursor-restart-verb', find: /\brestart Cursor\b/g, replace: 'restart Claude Code' },
+	{
+		name: 'cursor-models-api',
+		find: /If Cursor also exposes a models API/g,
+		replace: 'If your host also exposes a models API',
+	},
+	{ name: 'cursor-possessive-lc', find: /\bcursor's\b/g, replace: "Claude Code's" },
+	{ name: 'point-cursor-at', find: /\bpoint cursor at\b/g, replace: 'point Claude Code at' },
+	{ name: 'turns-cursor-into', find: /\bturns cursor into\b/g, replace: 'turns Claude Code into' },
+	{ name: 'make-cursor-work', find: /\bmake cursor work\b/g, replace: 'make Claude Code work' },
+
+	// Claude Code surfaces MCP servers as tools in the session rather than as a
+	// `mcps/` directory on disk, so the discovery instruction has to change, not
+	// just the product name.
+	{
+		name: 'mcp-discovery',
+		find: /list the available MCPs from the Cursor environment\. Use the available-tools map when present\. Otherwise inspect the `mcps\/` directory Cursor exposes for enabled MCP servers\./g,
+		replace:
+			'list the MCP servers available in this session. Their tools appear as `mcp__<server>__<tool>` entries in the tool list; use `ToolSearch` to enumerate them when they are deferred rather than listed up front.',
+	},
+
+	// ------------------------------------------------------------ grammar repair
+	// Renaming a word can strand the article in front of it: Cursor's
+	// "a `Task` subagent" becomes "a `Agent` subagent" once task-tool-* runs.
+	// Must stay last so it sees the rewritten text.
+	{ name: 'article-before-agent', find: /\ba (`?Agent`?\s+(?:tool|subagent))/g, replace: 'an $1' },
 ];
 
 /**
