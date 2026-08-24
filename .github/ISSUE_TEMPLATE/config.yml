@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: pstack itself
+    url: https://github.com/cursor/plugins/issues
+    about: A skill's advice, wording, or behaviour comes from upstream. File it there.

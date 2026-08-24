@@ -1,0 +1,39 @@
+name: Unported Cursor reference
+description: A generated skill points at Cursor, or at something Claude Code does not have.
+labels: [unported]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For how a skill behaves, file upstream at
+        [cursor/plugins](https://github.com/cursor/plugins/issues). This form is for
+        what the port got wrong.
+  - type: input
+    id: file
+    attributes:
+      label: File
+      description: Path inside `pstack/`, with the line number if you have it.
+      placeholder: pstack/skills/show-me-your-work/SKILL.md:42
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says now
+      description: Paste the line or the paragraph.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it should say
+      description: The Claude Code equivalent, if you know it.
+    validations:
+      required: false
+  - type: input
+    id: upstream
+    attributes:
+      label: Upstream commit
+      description: The `upstream.commit` value from `UPSTREAM.json`.
+    validations:
+      required: false
