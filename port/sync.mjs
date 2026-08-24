@@ -198,7 +198,7 @@ function writeManifest(srcDir) {
 
 const upstream = fetchUpstream();
 try {
-	fs.rmSync(OUT, { recursive: true, force: true });
+	fs.rmSync(OUT, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 	fs.mkdirSync(OUT, { recursive: true });
 
 	const stats = copyTree(upstream.dir, OUT);
