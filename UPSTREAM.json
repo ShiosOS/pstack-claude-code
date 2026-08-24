@@ -1,0 +1,61 @@
+{
+	"upstream": {
+		"repo": "https://github.com/cursor/plugins.git",
+		"subdir": "pstack",
+		"ref": "main",
+		"commit": "46125561306434d8a1d7745d540d8932ab0cd2a2"
+	},
+	"plugin": {
+		"name": "pstack",
+		"version": "0.14.2"
+	},
+	"port": {
+		"skills": 44,
+		"agents": 2,
+		"files": 155,
+		"filesTransformed": 43,
+		"rulesApplied": {
+			"article-before-agent": 1,
+			"ask-question-tool": 6,
+			"cursor-builtin-attribution": 8,
+			"cursor-create-skill": 1,
+			"cursor-dir-catchall": 11,
+			"cursor-loop-command": 3,
+			"cursor-models-api": 1,
+			"cursor-restart-noun": 2,
+			"cursor-restart-verb": 1,
+			"install-command": 2,
+			"install-confirm": 1,
+			"install-prose": 1,
+			"make-cursor-work": 1,
+			"mcp-discovery": 1,
+			"models-rule-file": 5,
+			"plugins-dir": 3,
+			"point-cursor-at": 2,
+			"projects-dir": 5,
+			"skill-frontmatter-name-is-slug": 1,
+			"skills-dir": 9,
+			"strip-cursor-always-apply": 1,
+			"strip-mdc-rule-frontmatter-in-fences": 1,
+			"task-tool-backtick": 1,
+			"task-tool-bare": 1,
+			"task-tool-prose": 2,
+			"todolist-tool": 7,
+			"transcript-bare-token": 2,
+			"transcript-dir-path": 1,
+			"transcript-full-path": 1,
+			"transcript-placeholder": 1,
+			"transcript-prose": 2,
+			"transcript-prose-with-aside": 2,
+			"transcript-slug-windows": 1,
+			"turns-cursor-into": 1
+		},
+		"overlays": [
+			"setup-pstack-claude-models -> skills/setup-pstack/SKILL.md",
+			"unslop-extra-patterns -> skills/unslop/SKILL.md",
+			"user-level-skill-authoring -> skills/automate-me/SKILL.md",
+			"user-level-skill-authoring -> skills/create-verification-skill/SKILL.md",
+			"user-level-skill-authoring -> skills/maintain-verification-skill/SKILL.md"
+		]
+	}
+}
