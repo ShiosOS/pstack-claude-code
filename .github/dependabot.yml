@@ -1,0 +1,14 @@
+version: 2
+
+# Only the pinned actions in .github/workflows. There is no package.json, and
+# the port scripts import nothing outside node's standard library, so no other
+# ecosystem exists to watch.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
