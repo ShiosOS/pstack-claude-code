@@ -82,10 +82,28 @@ if (!fs.existsSync(OUT)) {
 	process.exit(1);
 }
 
+// Content sniffing, matching sync.mjs. An extension allowlist would skip
+// upstream's extensionless scripts, so a Cursor path added to one would pass
+// the gate unseen.
+const BINARY_EXT = new Set([
+	'.jpg', '.jpeg', '.png', '.gif', '.webp', '.ico', '.pdf',
+	'.woff', '.woff2', '.ttf', '.otf', '.zip', '.gz', '.mp4', '.mov',
+]);
+
+function isText(file) {
+	if (BINARY_EXT.has(path.extname(file).toLowerCase())) return false;
+	const fd = fs.openSync(file, 'r');
+	try {
+		const buf = Buffer.alloc(8000);
+		const read = fs.readSync(fd, buf, 0, 8000, 0);
+		return !buf.subarray(0, read).includes(0);
+	} finally {
+		fs.closeSync(fd);
+	}
+}
+
 const files = walk(OUT);
-const textFiles = files.filter((f) =>
-	/\.(md|txt|json|sh|mjs|js|ts|ya?ml)$/i.test(f.rel) || path.basename(f.rel) === 'LICENSE',
-);
+const textFiles = files.filter((f) => isText(f.full));
 
 // ------------------------------------------------------------ forbidden tokens
 

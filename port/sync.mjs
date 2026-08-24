@@ -32,10 +32,26 @@ const ref = arg('--ref') ?? 'main';
 const localClone = arg('--from');
 const checkOnly = argv.includes('--check');
 
-const TEXT_EXT = new Set([
-	'.md', '.mdc', '.txt', '.json', '.sh', '.mjs', '.js', '.ts', '.yml', '.yaml', '.toml',
+// Text detection is by content, not by extension. Upstream ships executable
+// scripts with no extension (skills/poteto-mode/scripts/watch-pr/watch-pr); an
+// extension allowlist would silently skip them, so a `.cursor` path added there
+// would survive the port untouched.
+const BINARY_EXT = new Set([
+	'.jpg', '.jpeg', '.png', '.gif', '.webp', '.ico', '.pdf',
+	'.woff', '.woff2', '.ttf', '.otf', '.zip', '.gz', '.mp4', '.mov',
 ]);
-const isText = (p) => TEXT_EXT.has(path.extname(p).toLowerCase()) || path.basename(p) === 'LICENSE';
+
+function isText(file) {
+	if (BINARY_EXT.has(path.extname(file).toLowerCase())) return false;
+	const fd = fs.openSync(file, 'r');
+	try {
+		const buf = Buffer.alloc(8000);
+		const read = fs.readSync(fd, buf, 0, 8000, 0);
+		return !buf.subarray(0, read).includes(0);
+	} finally {
+		fs.closeSync(fd);
+	}
+}
 
 const git = (args, cwd) =>
 	execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
