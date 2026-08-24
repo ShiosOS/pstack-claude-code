@@ -78,20 +78,3 @@ Removing patterns is half the job. Sterile, voiceless writing is just as obvious
 29. **Active voice.** Prefer it. Catch "is/are/was/were + past participle" and name the actor: "queries are validated" becomes "the compiler validates queries", "the file is parsed by the loader" becomes "the loader parses the file". Passive is fine only when the actor is unknown or genuinely doesn't matter.
 30. **Cut adverbs, or use a stronger verb.** "runs quickly" becomes "is fast" or the number. "significantly improves" becomes the measured delta. An adverb propping up a weak verb means the verb is wrong.
 31. **Prefer the plain word.** "utilize" becomes "use", "leverage" becomes "use", "facilitate" becomes "help", "numerous" becomes "many", "in the event that" becomes "if". The fancier synonym is rarely clearer.
-
-<!-- pstack-claude-code overlay: unslop-extra-patterns -->
-## Additional patterns
-
-These extend the numbered list above. Same rules, same intent.
-
-- **"Load-bearing."** Sounds like it explains something and doesn't. "That
-  selector is load-bearing" becomes what it actually does: "removing that
-  selector regresses mobile padding from 12px to 16px". Say what breaks, and how
-  you know.
-- **"Seam"** for a boundary in code. Becomes "boundary", "interface", or just
-  name the two things: "where `ModuleFactory` still hands off to DI".
-- **"Lands" for shipping.** "the fix lands", "once this lands", "what landed".
-  Say the actual event: "is committed", "is merged", "is in the tree", "is
-  deployed", "I finished". "When it lands" usually means "when it's done" or
-  "when it's merged", so pick whichever is true. "Landed a change" is just "made
-  a change" or "committed a change".

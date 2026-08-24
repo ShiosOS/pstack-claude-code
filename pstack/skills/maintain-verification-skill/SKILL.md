@@ -37,15 +37,3 @@ Only edit the verification skill's own directory (its SKILL.md, features/, and a
 6. **Ship or stop.** For changed: one PR of proven corrections, re-read every changed file first. For clean or blocked: no PR, report the outcome and the coverage honestly.
 
 Keep concise run notes (features covered, unreachable prerequisites, confirmed drift, outcome) in a scratch location; don't commit them.
-
-<!-- pstack-claude-code overlay: user-level-skill-authoring -->
-## Where generated skills go
-
-Write generated skills to the user level, `~/.claude/skills/<name>/`, not to a
-project's `.claude/skills/`. A generated skill in the repo shows up in every
-diff, review, and blame for work it has nothing to do with, and it follows the
-branch instead of following you.
-
-Read from both locations — a project may legitimately ship its own skills — but
-create and update at the user level unless the user explicitly asks for a
-skill committed to the repo.

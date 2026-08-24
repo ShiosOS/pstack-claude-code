@@ -1,6 +1,6 @@
 ---
 target: skills/unslop/SKILL.md
-enabled: true
+enabled: false
 ---
 
 ## Additional patterns

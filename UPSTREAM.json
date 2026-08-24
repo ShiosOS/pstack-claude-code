@@ -58,11 +58,7 @@
 			"turns-cursor-into": 1
 		},
 		"overlays": [
-			"setup-pstack-claude-models -> skills/setup-pstack/SKILL.md",
-			"unslop-extra-patterns -> skills/unslop/SKILL.md",
-			"user-level-skill-authoring -> skills/automate-me/SKILL.md",
-			"user-level-skill-authoring -> skills/create-verification-skill/SKILL.md",
-			"user-level-skill-authoring -> skills/maintain-verification-skill/SKILL.md"
+			"setup-pstack-claude-models -> skills/setup-pstack/SKILL.md"
 		]
 	}
 }

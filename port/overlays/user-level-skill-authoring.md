@@ -1,6 +1,6 @@
 ---
 target: skills/automate-me/SKILL.md, skills/create-verification-skill/SKILL.md, skills/maintain-verification-skill/SKILL.md
-enabled: true
+enabled: false
 ---
 
 ## Where generated skills go
