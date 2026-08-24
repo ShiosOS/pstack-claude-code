@@ -43,6 +43,14 @@ export const rewrites = [
 		replace: '~/.claude/projects/<slug>',
 	},
 	{
+		// Upstream explains the slug in POSIX terms only. On Windows the drive
+		// colon collapses too, which changes the directory you actually look in.
+		name: 'transcript-slug-windows',
+		find: /\(so `\/Users\/you\/proj` becomes `Users-you-proj`\)/g,
+		replace:
+			'(so `/Users/you/proj` becomes `Users-you-proj`; on Windows the drive colon collapses as well, so `D:\\repos\\proj` becomes `D--repos-proj`)',
+	},
+	{
 		name: 'transcript-bare-token',
 		find: /`agent-transcripts\/?`/g,
 		replace: '`~/.claude/projects/<slug>/`',
