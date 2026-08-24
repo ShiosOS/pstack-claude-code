@@ -12,7 +12,7 @@ Don't reinvent a playbook you already have. A focused single-unit task that matc
 
 ## Start
 
-Open a todo list whose first item is to read the Principles section of the **poteto-mode** skill. Then add the phases below as todos.
+Open a todo list (`TodoWrite`) whose first item is to read the Principles section of the **poteto-mode** skill. Then add the phases below as todos.
 
 ## Phase A: Frame
 

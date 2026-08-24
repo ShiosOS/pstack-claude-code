@@ -2,7 +2,7 @@
 
 Produce a phased implementation plan grounded in the **Principles** section of the `poteto-mode` skill. The plan is the deliverable. Do not implement.
 
-Open a todo list with one item per step below.
+Open a todo list (`TodoWrite`) with one item per step below.
 
 ## 0. Triage
 

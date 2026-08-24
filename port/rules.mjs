@@ -87,7 +87,13 @@ export const rewrites = [
 	// Agent tool has no counterpart for. See PORT.md, known gaps.
 	{ name: 'task-tool-prose', find: /\bthe Task tool\b/g, replace: 'the Agent tool' },
 	{ name: 'task-tool-bare', find: /\bTask (tool|subagent)\b/g, replace: 'Agent $1' },
-	{ name: 'todolist-tool', find: /`TodoWrite`|\btodolist\b/g, replace: 'todo list' },
+	// Cursor's todo tool is "todolist"; Claude Code's is `TodoWrite`. Naming the
+	// tool at the point the list gets created keeps the instruction actionable —
+	// a bare "todo list" everywhere would drop the tool reference altogether. The
+	// parenthetical, not "with `TodoWrite`", because four of the six sites already
+	// continue "with one entry per phase".
+	{ name: 'todo-tool-open', find: /\bOpen a todolist\b/g, replace: 'Open a todo list (`TodoWrite`)' },
+	{ name: 'todo-tool', find: /\btodolist\b/g, replace: 'todo list' },
 
 	// ------------------------------------------------------- Cursor-only product
 	{

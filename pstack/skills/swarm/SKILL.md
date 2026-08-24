@@ -10,7 +10,7 @@ Fan out N parallel cloud workers. They may cover separate slices, race the same 
 
 ## Start
 
-Open a todo list with one entry per phase before launching anything.
+Open a todo list (`TodoWrite`) with one entry per phase before launching anything.
 
 1. Frame
 2. Fan out
