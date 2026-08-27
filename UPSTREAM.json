@@ -3,17 +3,17 @@
 		"repo": "https://github.com/cursor/plugins.git",
 		"subdir": "pstack",
 		"ref": "main",
-		"commit": "bdf7aa355337897f167153e05069aca505dae17c"
+		"commit": "6fecddba65801f9b9c08b8b328d998ee5b09d290"
 	},
 	"plugin": {
 		"name": "pstack",
-		"version": "0.14.3"
+		"version": "0.14.5"
 	},
 	"port": {
-		"skills": 44,
+		"skills": 45,
 		"agents": 2,
-		"files": 155,
-		"filesTransformed": 44,
+		"files": 156,
+		"filesTransformed": 45,
 		"executable": [
 			"skills/poteto-mode/scripts/check-plan.mjs",
 			"skills/poteto-mode/scripts/orch/orch.ts",
@@ -40,7 +40,7 @@
 			"plugins-dir": 3,
 			"point-cursor-at": 2,
 			"projects-dir": 5,
-			"skill-frontmatter-name-is-slug": 1,
+			"skill-frontmatter-name-is-slug": 2,
 			"skills-dir": 9,
 			"strip-cursor-always-apply": 1,
 			"strip-mdc-rule-frontmatter-in-fences": 1,
