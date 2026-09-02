@@ -3,16 +3,16 @@
 		"repo": "https://github.com/cursor/plugins.git",
 		"subdir": "pstack",
 		"ref": "main",
-		"commit": "b9ddc83c32972210b8a94d389130713e8eed346e"
+		"commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b"
 	},
 	"plugin": {
 		"name": "pstack",
-		"version": "0.14.5"
+		"version": "0.14.7"
 	},
 	"port": {
 		"skills": 45,
 		"agents": 2,
-		"files": 156,
+		"files": 157,
 		"filesTransformed": 45,
 		"executable": [
 			"skills/poteto-mode/scripts/check-plan.mjs",
