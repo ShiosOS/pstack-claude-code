@@ -3,11 +3,11 @@
 		"repo": "https://github.com/cursor/plugins.git",
 		"subdir": "pstack",
 		"ref": "main",
-		"commit": "df3fb154fb982fb83f649de8646d4af6a0cb16b3"
+		"commit": "f8abeddd1862dc73704e3d719dd73df0d51b8c71"
 	},
 	"plugin": {
 		"name": "pstack",
-		"version": "0.15.0"
+		"version": "0.15.1"
 	},
 	"port": {
 		"skills": 47,
