@@ -3,7 +3,7 @@
 		"repo": "https://github.com/cursor/plugins.git",
 		"subdir": "pstack",
 		"ref": "main",
-		"commit": "032be146865d973682535de75f2287da438550bf"
+		"commit": "6ed0f7a9504f577d7529064103cecce9be7dfc5e"
 	},
 	"plugin": {
 		"name": "pstack",
